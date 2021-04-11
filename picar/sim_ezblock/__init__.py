@@ -1,4 +1,4 @@
-'''from .pin import Pin
+`'''from .pin import Pin
 from .led import LED
 from .pwm import PWM
 from .servo import Servo
@@ -21,7 +21,7 @@ from .utils import *
 from .taskmgr import Taskmgr
 from .modules import *
 from .send_email import SendMail
-from .info import Info
+from .info import Infot
 from .rgb_matrix import RGB_Matrix
 from .oled import SSD1306_128_64 as SSD1306
 from .lcd1602_i2c import LCD
@@ -70,6 +70,7 @@ from .pwm import PWM
 from .servo import Servo
 from .i2c import I2C
 from .adc import ADC
+from .utils import *
 
 def __reset_mcu__():
     print ("resetting mcu.")
