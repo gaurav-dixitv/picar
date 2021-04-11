@@ -1,3 +1,4 @@
+import time
 try:
     import ezblock as __ezb  # import private members namespaceded as __ezb
     from ezblock import *
@@ -7,3 +8,6 @@ except ImportError:
         Shadowing hardware calls with stubs")
     import picar.sim_ezblock as __ezb  # import private members namespaceded as __ezb
     from picar.sim_ezblock import *
+finally:
+    __ezb.__reset_mcu__()
+    time.sleep(0.01)

@@ -9,4 +9,3 @@ except ImportError:
     from picar.sim_ezblock import *
 finally:
     __ezb.__reset_mcu__()
-    time.sleep(0.01)
