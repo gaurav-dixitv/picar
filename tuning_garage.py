@@ -1,13 +1,36 @@
 from picar.libezblock import * 
 from picar.picar import PiCar
 
+
+def speed_test(car):
+    car.forward(70)
+    delay(1000)
+
+    car.stop()
+    delay(1000)
+
+    car.backward(70)
+    delay(1000)
+
+    car.stop()
+    delay(1000)
+
+
+def head_test(car):
+    car.set_angle(30)
+    delay(1000)
+
+    car.set_angle(-30)
+    delay(1000)
+
+    car.set_angle(0)
+    delay(1000)
+
+
+
+
 car = PiCar()
 
-car.forward(80)
-delay(500)
-car.backward(20)
-delay(100)
-car.stop()
+speed_test(car)
+head_test(car)
 
-car.forward(calibrate=False, angle=30)
-car.stop()

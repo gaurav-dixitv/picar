@@ -9,3 +9,5 @@ except ImportError:
     from picar.sim_ezblock import *
 finally:
     __ezb.__reset_mcu__()
+    import time
+    time.sleep(0.001) # prevent IO underflow errors

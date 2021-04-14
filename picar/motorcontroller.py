@@ -1,18 +1,22 @@
 from .libezblock import *  # import ezblock
 from .constants import *
 
+
 class MotorController:
     def __init__(self) -> None:
 
         self.direction_pins = [Pin("D4"), Pin("D5")]
         self.speed_pins = [PWM("P13"), PWM("P12")]
+        self.direction_servo_pin = Servo(PWM('P2'))
+
         for pin in self.speed_pins:
             pin.period(Constants.PERIOD)
             pin.prescaler(Constants.PRESCALER)
 
-        self.calibrated_speed = [1, -1]
-        self.calibrated_direction =  [0, 0]
-    
+        self.calibrated_speed = [0, 0]
+        self.calibrated_direction = [1, -1]
+        self.calibrated_servo = 0
+
     def set_motor_speed(self, motor, speed):
         # index with 0
         motor -= 1
@@ -21,7 +25,7 @@ class MotorController:
             direction = 1 * self.calibrated_direction[motor]
         elif speed < 0:
             direction = -1 * self.calibrated_direction[motor]
-        
+
         # speed
         speed = abs(speed)
         # offset caliberation
@@ -43,4 +47,12 @@ class MotorController:
     def set_direction_calibration(self, motor, value):
         motor -= 1
         if value == 1:
-            self.calibrated_direction[motor] = -1 * self.calibrated_direction[motor]
+            self.calibrated_direction[motor] = - \
+                1 * self.calibrated_direction[motor]
+
+    def set_servo_angle(self, angle):
+        self.direction_servo_pin.angle(
+            angle + self.calibrated_servo)
+
+    def set_servo_calibration(self, angle):
+        self.calibrated_servo = angle
