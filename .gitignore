@@ -127,3 +127,13 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# emcas
+tramp
+.org-id-locations
+*_archive
+.projectile
+.dir-locals.el
+
+# vscode
+.vscode
