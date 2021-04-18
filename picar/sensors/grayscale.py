@@ -1,17 +1,34 @@
-from .sensor import *
+
+from picar.libezblock import *
+from picar.constants import *
 import numpy as np
+from enum import IntEnum
+from typing import List
+
+SensorOutput = List[int]
+
+
+class Sensor:
+    def __init__(self, adc_channels) -> None:
+        self.channels = [ADC(channel) for channel in adc_channels]
+
+    def read(self) -> SensorOutput:
+        return [adc.read() for adc in self.channels]
+
+
+class Polarity(IntEnum):
+    Dark = -1
+    Light = +1
 
 
 class Interpreter:
 
     def __init__(self,
                  sensitivity: float = 1e-0,
-                 polarity: Polarity = Polarity.Dark,
-                 threshold: float = None) -> None:
+                 polarity: Polarity = Polarity.Dark) -> None:
 
         self.sensitivity = sensitivity
         self.polarity = polarity
-        self.threshold = threshold if threshold else self.sensitivity * 1500
 
     def process(self, sensor_values: SensorOutput) -> float:
 
