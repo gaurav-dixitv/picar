@@ -34,14 +34,14 @@ def test_gray() -> None:
     sensor = Grayscale.Sensor(['A0', 'A1', 'A2'])
     interpreter = Grayscale.Interpreter()
     direction = interpreter.process(sensor.read())
-    print("[Garage::test_gray] move in direction: ", direction)
+    print(f"[Garage::test_gray] move in direction {direction}")
 
 
 def test_camera() -> None:
     sensor = Camera.Sensor()
     interpreter = Camera.Interpreter()
     direction = interpreter.process(sensor.read())
-    print("[Garage::test_camera] move in direction: ", direction)
+    print(f"[Garage::test_camera] move in direction {direction}")
 
 
 def test_camera_frame() -> None:
@@ -58,7 +58,7 @@ def test_steering(
         car: PiCar,
         ticks: int = 10) -> None:
 
-    print("[Garage::test_steering] testing steering with ", sensor, ".")
+    print(f"[Garage::test_steering] testing steering with {sensor}.")
     # reset car and set in motion
     car.reset()
     car.forward()
@@ -80,9 +80,6 @@ car = PiCar()
 test_speed(car)
 test_head(car)
 
-test_camera_frame()
-
-'''
 test_gray()
 test_steering(
     sensor=Grayscale.Sensor(['A0', 'A1', 'A2']),
@@ -90,15 +87,10 @@ test_steering(
     controller=Grayscale.Controller(),
     car=car
 )
-'''
 
-test_camera()
-
-'''
 test_steering(
     sensor=Camera.Sensor(),
     interpreter=Camera.Interpreter(),
     controller=Camera.Controller(),
     car=car
 )
-'''

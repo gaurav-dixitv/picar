@@ -2,6 +2,7 @@
 from numpy.lib.type_check import imag
 from picar.libezblock import *
 import numpy as np
+from .grayscale import Interpreter as GrayscaleInterpreter
 
 # check if you are on a raspberry, fallback to stubs otherwise
 try:
@@ -59,6 +60,22 @@ class Interpreter:
         image = sensor_values
 
         '''
+        reference: https://towardsdatascience.com/deeppicar-part-4-lane-following-via-opencv-737dd9e47c96
+        
+        The reference already shows how to navigate within two lanes
+        Let's see how well we can do with a heuristic instead!
+
+        Heuristic
+        1. Mask for blue (assuming blue tape)
+        2. Apply blur + thresholding to capture dominant blobs
+        3. Borrow the subtractive filtering from the grayscale sensor
+            to compute which side is "brigher"
+        4. Move in the direction to reduce the brighter side
+        5. ...
+        6. profit ?
+        '''
+
+        '''
         assuming blue waypoints,
         hsv blue range: 180 - 260
         cv2 blue range: 180/2 - 260/2 -> 90 - 130
@@ -68,37 +85,33 @@ class Interpreter:
             np.array([90, 0, 0]),
             np.array([130, 255, 255]))
 
-        # convert to gray
-        gray = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
-
-        # Apply gaussian tresholding
-        treshold = cv2.adaptiveThreshold(
-            gray,
+        # using the value channel from the hsv image
+        value = cv2.medianBlur(mask, 5)
+        # Apply gaussian thresholding
+        threshold = cv2.adaptiveThreshold(
+            value,
             255,
             cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
             cv2.THRESH_BINARY, 11, 2)
 
-        cv2.imwrite("/tmp/treshold.png", treshold)
-
-        # Canny edge detection
-        # edges = cv2.Canny(mask, 200, 400)   # TODO check Canny.threshold[12]
-
         # lanes only on the ground?
-        # image = self._roi(edges)
+        image = self._roi(threshold)
 
+        # flip row x columns!
+        image = cv2.flip(image, 0)
 
+        # process using grayscale detector
+        processor = GrayscaleInterpreter()
+        cumulative_direction = 0
+        for row in image:
+            cumulative_direction += processor.process(np.append(row, 0))
+
+        if cumulative_direction > 0:
+            return 1.0
+        elif cumulative_direction < 0:
+            return -1.0
 
         return 0.0
-
-        # caluclate difference
-        mid = len(sensor_values) // 2
-        delta = np.array(sensor_values[:mid+1]) - \
-            np.array(sensor_values[mid:])
-
-        delta[mid:] *= -1    # change the direction of the right half
-
-        # return clipped value
-        return np.clip(np.mean(delta) * self.sensitivity, -1, 1)
 
 
 class Controller:
