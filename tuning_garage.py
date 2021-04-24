@@ -30,26 +30,14 @@ def test_head(car: PiCar) -> None:
     delay(1000)
 
 
-def test_gray() -> None:
-    sensor = Grayscale.Sensor(['A0', 'A1', 'A2'])
-    interpreter = Grayscale.Interpreter()
-    direction = interpreter.process(sensor.read())
-    print(f"[Garage::test_gray] move in direction {direction}")
+car = PiCar()
+
+test_speed(car)
+test_head(car)
 
 
-def test_camera() -> None:
-    sensor = Camera.Sensor()
-    interpreter = Camera.Interpreter()
-    direction = interpreter.process(sensor.read())
-    print(f"[Garage::test_camera] move in direction {direction}")
-
-
-def test_camera_frame() -> None:
-    sensor = Camera.Sensor()
-    image = sensor.read()
-    import cv2
-    cv2.imwrite("/tmp/test_camera_frame.png", image)
-
+'''
+deprecated
 
 def test_steering(
         sensor,
@@ -74,12 +62,6 @@ def test_steering(
     # stop car
     car.reset()
 
-
-car = PiCar()
-
-test_speed(car)
-test_head(car)
-
 test_gray()
 test_steering(
     sensor=Grayscale.Sensor(['A0', 'A1', 'A2']),
@@ -94,3 +76,4 @@ test_steering(
     controller=Camera.Controller(),
     car=car
 )
+'''

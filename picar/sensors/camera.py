@@ -1,8 +1,11 @@
 
+from numpy.lib.function_base import select
 from numpy.lib.type_check import imag
 from picar.libezblock import *
 import numpy as np
 from .grayscale import Interpreter as GrayscaleInterpreter
+from picar.threading.bus import ThreadBus
+import threading
 
 # check if you are on a raspberry, fallback to stubs otherwise
 try:
@@ -27,10 +30,16 @@ class Sensor:
              self.camera.resolution.width, 3),
             dtype=np.uint8)
 
-    def read(self) -> SensorOutput:
-        self.camera.capture(self.output, "bgr")
-        return self.output
-
+    def read(self, bus: ThreadBus, event: threading.Event) -> None:
+        while not event.is_set():
+            self.camera.capture(self.output, "bgr")
+            # return self.output
+            # instead of retuning, the sensor writes to a bus now
+            if event.is_set(): 
+                return
+            bus.write({
+                'frame': self.output
+            })
 
 class Interpreter:
 
@@ -116,9 +125,17 @@ class Interpreter:
 
 class Controller:
 
-    def __init__(self, scale: float = 1.0) -> None:
+    def __init__(self, car, scale: float = 1.0) -> None:
+        self.car = car
         self.scale = scale
+        self.interpreter = Interpreter()
 
-    # apply camera processed out -> angle transformation
-    def steer(self, camera_out) -> float:
-        return self.scale * camera_out
+    def update(self, bus: ThreadBus, event: threading.Event):
+        while not event.is_set() or not bus.length() == 0:
+            # read frame
+            frame = bus.read()['frame']
+            print ("Controller::update() updating steering angle.")
+            # interpret it
+            processed_frame = self.interpreter.process(frame)
+            # transform and steer
+            self.car.set_angle(self.scale * processed_frame)
