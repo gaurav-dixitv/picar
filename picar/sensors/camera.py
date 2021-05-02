@@ -40,6 +40,11 @@ class Sensor:
             bus.write({
                 'frame': self.output
             })
+    
+    def raw_read(self):
+        self.camera.capture(self.output, "bgr")
+        print("Camera::Sensor::raw_read() sensor image updated.")
+        return self.output
 
 class Interpreter:
 
@@ -139,3 +144,7 @@ class Controller:
             processed_frame = self.interpreter.process(frame)
             # transform and steer
             self.car.set_angle(self.scale * processed_frame)
+
+    def steer(self, processed_frame):
+        print("Camera::Controller::steer() steering.")
+        self.car.set_angle(self.scale * processed_frame)

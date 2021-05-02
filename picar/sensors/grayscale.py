@@ -17,18 +17,23 @@ class Sensor:
         self.bus = bus
         self.signals = Connect()
 
-    def read(self) -> SensorOutput:
+    def read(self, write=False) -> SensorOutput:
 
         # return [adc.read() for adc in self.channels]
         # instead of retuning, the sensor writes to a bus now
-        self.bus.write({
-            'adc': [adc.read() for adc in self.channels]
-        })
+        sensor_values = [adc.read() for adc in self.channels]
+
+        if write:
+            self.bus.write({
+                'adc': sensor_values
+            })
         # emit signal "adc_update"
         self.signals.emit("adc_update")
 
         # slots connected to this signal can now update their values
         # safely with Sensor.signals.on("adc_update")
+        print("Grayscale::Sensor::read() sensor read complete.")
+        return sensor_values
 
 
 class Polarity(IntEnum):
@@ -63,19 +68,23 @@ class Controller:
     def __init__(self, bus: AsyncBus, car, scale: float = 1.0, *args, **kwargs) -> None:
         self.scale = scale
         self.bus = bus
+        self.car = car
         self.interpreter = Interpreter(*args, **kwargs)
 
-    def update(self, car):
+    def update(self):
         # new values availabel in the bus
         # read
         values = self.bus.read()['adc']
         # transform them
         values = self.interpreter.process(values)
         # steer
-        self.steer(values, car)
+        self.steer(values)
         # log
         print("Grayscale::Controller::update() updated steering angle.")
 
     # apply grayscale processed out -> angle transformation
-    def steer(self, grayscale_out, car) -> float:
-        car.set_angle(self.scale * grayscale_out)
+    def steer(self, grayscale_out) -> float:
+        print("Grayscale::Controller::steer() steering.")
+        self.car.set_angle(self.scale * grayscale_out)
+
+    
